@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-17",
+  "edition": "Template demonstration",
+  "tagline": "Independent knowledge, discovery and sound judgment",
+  "articles": [
+    {
+      "section": "FRONT PAGE",
+      "headline": "The stories hiding in plain sight",
+      "deck": "How independent communities can change what we notice.",
+      "paragraphs": [
+        "Small specialist communities often discuss problems long before they appear in national reporting. Their firsthand experience can be valuable, but **anecdotes are not representative evidence**.",
+        "A strong newspaper starts with such observations, then tests the claims against primary research, local records and independent reporting. The goal is not novelty alone; it is better understanding."
+      ],
+      "sources": [
+        {
+          "label": "Example community directory",
+          "url": "https://www.repaircafe.org/en/"
+        }
+      ]
+    },
+    {
+      "section": "UNDERSTAND THE SYSTEM",
+      "headline": "The economics of a small cinema",
+      "paragraphs": [
+        "A cinema pays rent, electricity, maintenance and staffing costs whether the auditorium is full or empty. Ticket sales must cover both fixed costs and the distributor's share.",
+        "Community cinemas may generate wider benefits that do not appear on their balance sheets. That makes the choice of funding and governance particularly important."
+      ]
+    },
+    {
+      "section": "MENTAL MODEL",
+      "headline": "Goodhart's law",
+      "paragraphs": [
+        "When visitor numbers become the sole measure of a cinema's success, managers may stop showing less popular educational films. Attendance could increase while cultural value declines."
+      ]
+    },
+    {
+      "section": "FROM THE SMALL WEB",
+      "headline": "An unfamiliar craft",
+      "paragraphs": [
+        "A specialist's small experiment can generate useful questions even before it produces a verified conclusion."
+      ]
+    },
+    {
+      "section": "BEST DEEP READ",
+      "headline": "Beyond Markets and States",
+      "paragraphs": [
+        "Elinor Ostrom's Nobel lecture examines how communities govern shared resources."
+      ],
+      "sources": [
+        {
+          "label": "Nobel lecture",
+          "url": "https://www.nobelprize.org/prizes/economic-sciences/2009/ostrom/lecture/"
+        }
+      ]
+    }
+  ],
+  "closing_note": "The best discoveries begin with curiosity and improve through verification."
+}
