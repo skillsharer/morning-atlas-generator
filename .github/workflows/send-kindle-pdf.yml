@@ -1,0 +1,67 @@
+name: Send Morning Atlas PDF to Kindle
+on:
+  workflow_dispatch:
+    inputs:
+      edition_date:
+        description: 'Edition date (YYYY-MM-DD); leave blank for today in Budapest'
+        required: false
+        type: string
+  schedule:
+    # GitHub Actions cron uses UTC. These two slots cover Budapest DST changes.
+    - cron: '30 5 * * *'
+    - cron: '30 6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  email:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Choose edition
+        id: edition
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DATE: ${{ inputs.edition_date }}
+        run: |
+          python - <<'PY'
+          import os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          now = datetime.now(ZoneInfo('Europe/Budapest'))
+          scheduled = os.environ['EVENT_NAME'] == 'schedule'
+          # One daily scheduled run only, regardless of daylight-saving time.
+          if scheduled and now.hour != 7:
+              print('Outside 07:00 Budapest hour; skipping.')
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f: f.write('send=false\n')
+          else:
+              edition = os.environ.get('INPUT_DATE') or now.date().isoformat()
+              from datetime import date
+              date.fromisoformat(edition)
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f'date={edition}\nsend=true\n')
+              print(f'Edition: {edition}')
+          PY
+      - name: Verify PDF is available in the repository
+        if: steps.edition.outputs.send == 'true'
+        env:
+          EDITION_DATE: ${{ steps.edition.outputs.date }}
+        run: |
+          PDF="editions/Morning_Atlas_${EDITION_DATE}.pdf"
+          if [ ! -s "$PDF" ]; then
+            echo "ERROR: $PDF is not committed to this repository. ChatGPT task files do not automatically appear in GitHub Actions."
+            exit 1
+          fi
+          echo "PDF_PATH=$PDF" >> "$GITHUB_ENV"
+      - name: Email PDF to Kindle
+        if: steps.edition.outputs.send == 'true'
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          KINDLE_EMAIL: ${{ secrets.KINDLE_EMAIL }}
+        run: python scripts/send_kindle_pdf.py --pdf "$PDF_PATH"
