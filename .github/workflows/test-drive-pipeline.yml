@@ -1,0 +1,56 @@
+name: Test Morning Atlas Google Drive Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      edition_date:
+        description: "Edition date (YYYY-MM-DD)"
+        required: true
+        default: "2026-10-18"
+        type: string
+      send_to_kindle:
+        description: "Send the generated PDF to Kindle (only after checking output)"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check reportlab pymupdf google-auth requests
+      - name: Download manuscript from Google Docs
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          MORNING_ATLAS_DOC_ID: ${{ secrets.MORNING_ATLAS_DOC_ID }}
+          EDITION_DATE: ${{ inputs.edition_date }}
+        run: |
+          python scripts/fetch_drive_manuscript.py --date "$EDITION_DATE" --output manuscript.json
+      - name: Render and verify newspaper PDF
+        run: python morning_atlas_pdf.py manuscript.json --out-dir editions --verify
+      - name: Upload generated PDF as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: morning-atlas-test-${{ inputs.edition_date }}
+          path: |
+            editions/Morning_Atlas_${{ inputs.edition_date }}.pdf
+            editions/Morning_Atlas_${{ inputs.edition_date }}.md
+          if-no-files-found: error
+          retention-days: 7
+      - name: Send PDF to Kindle (optional)
+        if: ${{ inputs.send_to_kindle }}
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          KINDLE_EMAIL: ${{ secrets.KINDLE_EMAIL }}
+          EDITION_DATE: ${{ inputs.edition_date }}
+        run: python scripts/send_kindle_pdf.py --pdf "editions/Morning_Atlas_${EDITION_DATE}.pdf"
