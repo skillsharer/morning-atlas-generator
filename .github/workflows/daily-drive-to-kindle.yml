@@ -71,7 +71,7 @@ jobs:
         if: steps.edition.outputs.ready == 'true'
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          MORNING_ATLAS_FOLDER_ID: ${{ vars.MORNING_ATLAS_FOLDER_ID }}
+          MORNING_ATLAS_FOLDER_ID: "1vZQgVDBklcs9G4Wxj9l3dZ0KPiQrSMm9"
           EDITION_DATE: ${{ steps.edition.outputs.date }}
         run: |
           for attempt in $(seq 1 10); do
