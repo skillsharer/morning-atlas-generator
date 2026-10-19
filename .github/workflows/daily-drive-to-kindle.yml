@@ -67,15 +67,15 @@ jobs:
           python -m pip install --disable-pip-version-check \
             reportlab pymupdf google-auth requests
 
-      - name: Wait for today's manuscript
+      - name: Wait for latest valid dated Drive JSON
         if: steps.edition.outputs.ready == 'true'
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          MORNING_ATLAS_DOC_ID: ${{ secrets.MORNING_ATLAS_DOC_ID }}
+          MORNING_ATLAS_FOLDER_ID: ${{ vars.MORNING_ATLAS_FOLDER_ID }}
           EDITION_DATE: ${{ steps.edition.outputs.date }}
         run: |
           for attempt in $(seq 1 10); do
-            if python scripts/fetch_drive_manuscript.py \
+            if python scripts/fetch_latest_drive_json.py \
               --date "$EDITION_DATE" \
               --output manuscript.json; then
               echo "Valid manuscript received."
