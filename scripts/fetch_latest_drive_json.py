@@ -48,7 +48,7 @@ def main():
             resp = session.get(f"https://www.googleapis.com/drive/v3/files/{item['id']}",
                                params={"alt": "media", "supportsAllDrives": "true"}, timeout=60)
             resp.raise_for_status()
-            manuscript = resp.json()
+            manuscript = json.loads(resp.content.decode("utf-8-sig"))
             if manuscript.get("date") != args.date:
                 raise ValueError("Edition date mismatch")
             if not isinstance(manuscript.get("articles"), list) or not manuscript["articles"]:
